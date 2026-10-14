@@ -16,35 +16,37 @@ export default function LandingPage() {
   const { triggerTransition } = useTransition();
 
   return (
-    <div className="min-h-screen bg-[#F4F9F5] text-[#2C3E35] font-sans antialiased selection:bg-[#38af88] selection:text-white">
-      {/* ---------------- NAVBAR ---------------- */}
-      <nav className="sticky top-0 z-50 bg-[#F4F9F5]/90 backdrop-blur-md border-b-2 border-[#E1EFE6] px-4 py-3">
+    <div className="min-h-screen bg-[#F4F9F5] text-[#2C3E35] font-sans antialiased selection:bg-[#38af88] selection:text-white overflow-x-hidden">
+      
+      {/* ---------------- NAVBAR DENGAN ANIMASI SLIDE-DOWN ---------------- */}
+      <nav className="sticky top-0 z-50 bg-[#F4F9F5]/90 backdrop-blur-md border-b-2 border-[#E1EFE6] px-4 py-3 transition-all duration-300 animate-slide-down">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <button
             onClick={() => triggerTransition("/")}
-            className="font-extrabold text-4xl tracking-tight text-[#38af88] hover:opacity-90 transition-opacity flex items-center gap-2 cursor-pointer"
+            className="font-extrabold text-4xl tracking-tight text-[#38af88] hover:opacity-90 transition-all flex items-center gap-2 cursor-pointer group"
           >
+            <span className="group-hover:rotate-12 transition-transform duration-300">🌱</span>
             <span>ecoh</span>
-            <span className="text-xs bg-[#F9C846] text-[#5C4500] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-xs bg-[#F9C846] text-[#5C4500] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">
               Game
             </span>
           </button>
 
           <div className="hidden md:flex items-center gap-6 font-semibold text-sm text-[#4A6B5D]">
-            <a href="#dunia" className="hover:text-[#38af88] transition-colors">
+            <a href="#dunia" className="hover:text-[#38af88] hover:scale-105 transition-all">
               Tentang Ecoh
             </a>
-            <a href="#zona" className="hover:text-[#38af88] transition-colors">
+            <a href="#zona" className="hover:text-[#38af88] hover:scale-105 transition-all">
               Zona Misi
             </a>
-            <a href="#fitur" className="hover:text-[#38af88] transition-colors">
+            <a href="#fitur" className="hover:text-[#38af88] hover:scale-105 transition-all">
               Keunggulan
             </a>
           </div>
 
           <button
             onClick={() => triggerTransition("/game")}
-            className="bg-[#38af88] hover:bg-[#2d9371] text-white font-bold px-6 py-2.5 rounded-2xl border-b-4 border-[#25785c] active:translate-y-0.5 active:border-b-0 transition-all flex items-center gap-2 shadow-md text-sm cursor-pointer"
+            className="bg-[#38af88] hover:bg-[#2d9371] text-white font-bold px-6 py-2.5 rounded-2xl border-b-4 border-[#25785c] active:translate-y-0.5 active:border-b-0 transition-all flex items-center gap-2 shadow-md text-sm cursor-pointer hover:scale-105"
           >
             <Play className="w-4 h-4 fill-white" />
             <span>Pilih Misi</span>
@@ -52,36 +54,46 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* ---------------- HERO TEASER ---------------- */}
-      <section id="dunia" className="pt-12 pb-16 px-4 relative overflow-hidden">
+      {/* ---------------- HERO TEASER (OPENING ANIMATION FADE-IN-UP) ---------------- */}
+      <section id="dunia" className="pt-16 pb-20 px-4 relative overflow-hidden">
+        
+        {/* Dekorasi Mengambang */}
+        <div className="absolute top-12 left-10 text-4xl animate-bounce opacity-40 select-none pointer-events-none" style={{ animationDuration: '3s' }}>
+          🍃
+        </div>
+        <div className="absolute top-24 right-12 text-4xl animate-bounce opacity-40 select-none pointer-events-none" style={{ animationDuration: '4s' }}>
+          🌍
+        </div>
+
         <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E3F4EC] border border-[#B3E2CD] text-[#25785c] font-black text-sm shadow-sm animate-bounce">
+          
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#E3F4EC] border border-[#B3E2CD] text-[#25785c] font-black text-sm shadow-sm transition-all duration-700 hover:scale-105 animate-fade-in-up">
             <ShieldCheck className="w-4 h-4 text-[#38af88]" />
             <span>Aksi Nyata Pahlawan Bumi</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#1D3B2E] leading-tight">
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-[#1D3B2E] leading-tight transition-all duration-700 animate-fade-in-up [animation-delay:150ms]">
             Selamatkan Bumi Kita dari{" "}
-            <span className="text-[#38af88] underline decoration-[#F9C846] decoration-wavy decoration-2">
+            <span className="text-[#38af88] underline decoration-[#F9C846] decoration-wavy decoration-2 inline-block animate-pulse">
               Lautan Sampah!
             </span>
           </h1>
 
-          <p className="text-base md:text-lg text-[#527363] max-w-2xl mx-auto leading-relaxed font-medium">
+          <p className="text-base md:text-lg text-[#527363] max-w-2xl mx-auto leading-relaxed font-medium transition-all duration-700 animate-fade-in-up [animation-delay:300ms]">
             Jadilah Pahlawan Bumi sejati! Selesaikan petualangan seru memilah sampah di konveyor, membersihkan kotoran hingga berkilau, dan mendaur ulangnya untuk menjaga kelestarian alam.
           </p>
 
-          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-700 animate-fade-in-up [animation-delay:450ms]">
             <button
               onClick={() => triggerTransition("/game/misi-1")}
-              className="w-full sm:w-auto bg-[#38af88] hover:bg-[#2d9371] text-white font-black text-xl px-10 py-4 rounded-3xl border-b-4 border-[#236e54] active:translate-y-1 active:border-b-0 transition-all shadow-xl shadow-[#38af88]/25 flex items-center justify-center gap-3 cursor-pointer"
+              className="w-full sm:w-auto bg-[#38af88] hover:bg-[#2d9371] text-white font-black text-xl px-10 py-4 rounded-3xl border-b-4 border-[#236e54] active:translate-y-1 active:border-b-0 transition-all shadow-xl shadow-[#38af88]/25 flex items-center justify-center gap-3 cursor-pointer hover:scale-105"
             >
               <Gamepad2 className="w-7 h-7" />
               <span>Mulai Misi 1 Sekarang</span>
             </button>
             <a
               href="#zona"
-              className="w-full sm:w-auto bg-white hover:bg-[#F0F7F2] text-[#25785c] font-bold text-lg px-8 py-4 rounded-3xl border-2 border-[#CBE4D6] shadow-sm flex items-center justify-center gap-2 transition-all"
+              className="w-full sm:w-auto bg-white hover:bg-[#F0F7F2] text-[#25785c] font-bold text-lg px-8 py-4 rounded-3xl border-2 border-[#CBE4D6] shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-105"
             >
               <Compass className="w-5 h-5 text-[#38af88]" />
               <span>Jelajahi Misi</span>
@@ -91,8 +103,8 @@ export default function LandingPage() {
       </section>
 
       {/* ---------------- ZONA MISI ---------------- */}
-      <section id="zona" className="py-16 px-4 bg-[#E8F3ED]">
-        <div className="max-w-5xl mx-auto space-y-10">
+      <section id="zona" className="py-20 px-4 bg-[#E8F3ED] transition-all">
+        <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-white rounded-full text-xs font-black text-[#38af88] border border-[#D1E7DC]">
               <Trophy className="w-4 h-4 text-[#F2B705]" />
@@ -107,13 +119,14 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
             {/* CARD MISI 1 */}
             <div
               onClick={() => triggerTransition("/game/misi-1")}
-              className="bg-white rounded-3xl p-6 border-2 border-[#D5E8DD] shadow-sm hover:shadow-xl hover:border-[#38af88] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
+              className="bg-white rounded-3xl p-6 border-2 border-[#D5E8DD] shadow-sm hover:shadow-2xl hover:border-[#38af88] transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-4 group transform hover:-translate-y-2 hover:scale-[1.02]"
             >
               <div className="space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-[#E3F5EC] text-[#38af88] flex items-center justify-center font-black text-2xl group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 rounded-2xl bg-[#E3F5EC] text-[#38af88] flex items-center justify-center font-black text-2xl group-hover:scale-125 group-hover:rotate-12 transition-transform duration-300">
                   ⚙️
                 </div>
                 <h3 className="text-xl font-black text-[#1D3B2E] group-hover:text-[#38af88] transition-colors">
@@ -123,7 +136,7 @@ export default function LandingPage() {
                   Seret sampah organik, anorganik, dan B3 yang berjalan di mesin konveyor menuju tong pemilahan yang tepat!
                 </p>
               </div>
-              <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#38af88] bg-[#F4F9F5] p-3 rounded-xl border border-[#E1EFE6]">
+              <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#38af88] bg-[#F4F9F5] p-3 rounded-xl border border-[#E1EFE6] group-hover:bg-[#E3F5EC] transition-colors">
                 <span>Status: Siap Dimainkan ✨</span>
                 <span className="flex items-center gap-1">
                   <Star className="w-3.5 h-3.5 fill-[#F2B705] text-[#F2B705]" /> Level 1
@@ -134,10 +147,10 @@ export default function LandingPage() {
             {/* CARD MISI 2 */}
             <div
               onClick={() => triggerTransition("/game/misi-2")}
-              className="bg-white rounded-3xl p-6 border-2 border-[#D5E8DD] shadow-sm hover:shadow-xl hover:border-[#F2B705] transition-all cursor-pointer flex flex-col justify-between space-y-4 group"
+              className="bg-white rounded-3xl p-6 border-2 border-[#D5E8DD] shadow-sm hover:shadow-2xl hover:border-[#F2B705] transition-all duration-300 cursor-pointer flex flex-col justify-between space-y-4 group transform hover:-translate-y-2 hover:scale-[1.02]"
             >
               <div className="space-y-3">
-                <div className="w-14 h-14 rounded-2xl bg-[#FFF8E5] text-[#D9A000] flex items-center justify-center font-black text-2xl group-hover:scale-110 transition-transform">
+                <div className="w-14 h-14 rounded-2xl bg-[#FFF8E5] text-[#D9A000] flex items-center justify-center font-black text-2xl group-hover:scale-125 group-hover:-rotate-12 transition-transform duration-300">
                   🧹
                 </div>
                 <h3 className="text-xl font-black text-[#1D3B2E] group-hover:text-[#D9A000] transition-colors">
@@ -147,7 +160,7 @@ export default function LandingPage() {
                   Gunakan sapu, spons, atau air untuk membersihkan noda debu pada berbagai sampah kotor hingga mengkilap!
                 </p>
               </div>
-              <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#D9A000] bg-[#FFFDF5] p-3 rounded-xl border border-[#FCEECB]">
+              <div className="pt-2 flex items-center justify-between text-xs font-bold text-[#D9A000] bg-[#FFFDF5] p-3 rounded-xl border border-[#FCEECB] group-hover:bg-[#FFF8E5] transition-colors">
                 <span>Status: Siap Dimainkan ✨</span>
                 <span className="flex items-center gap-1">
                   <Star className="w-3.5 h-3.5 fill-[#F2B705] text-[#F2B705]" /> Level 2
@@ -156,9 +169,7 @@ export default function LandingPage() {
             </div>
 
             {/* CARD MISI 3 (LOCKED) */}
-            <div
-              className="bg-white/70 rounded-3xl p-6 border-2 border-gray-200 shadow-sm opacity-80 flex flex-col justify-between space-y-4"
-            >
+            <div className="bg-white/70 rounded-3xl p-6 border-2 border-gray-200 shadow-sm opacity-80 flex flex-col justify-between space-y-4 hover:border-gray-300 transition-all">
               <div className="space-y-3">
                 <div className="w-14 h-14 rounded-2xl bg-gray-100 text-gray-400 flex items-center justify-center font-black text-2xl">
                   🔒
@@ -171,19 +182,20 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="pt-2 flex items-center justify-between text-xs font-bold text-gray-400 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                <span>Status: Coming Soon 🔒</span>
+                <span>Status: Terkunci 🔒</span>
                 <span className="flex items-center gap-1">
                   <Star className="w-3.5 h-3.5 text-gray-300" /> Level 3
                 </span>
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
       {/* ---------------- FITUR KEUNGGULAN ---------------- */}
-      <section id="fitur" className="py-16 px-4">
-        <div className="max-w-4xl mx-auto space-y-10">
+      <section id="fitur" className="py-20 px-4">
+        <div className="max-w-4xl mx-auto space-y-12">
           <div className="text-center space-y-2">
             <h2 className="text-3xl font-black text-[#1D3B2E]">
               Kenapa Bermain Ecoh Sangat Seru?
@@ -194,8 +206,8 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white p-6 rounded-3xl border-2 border-[#D5E8DD] shadow-sm space-y-2 text-center">
-              <div className="w-12 h-12 bg-[#E3F4EC] text-[#38af88] rounded-2xl mx-auto flex items-center justify-center font-bold text-2xl">
+            <div className="bg-white p-6 rounded-3xl border-2 border-[#D5E8DD] shadow-sm space-y-3 text-center hover:scale-105 transition-transform duration-300">
+              <div className="w-12 h-12 bg-[#E3F4EC] text-[#38af88] rounded-2xl mx-auto flex items-center justify-center font-bold text-2xl animate-pulse">
                 ⚡
               </div>
               <h3 className="font-extrabold text-lg text-[#1D3B2E]">Interaktif & Responsif</h3>
@@ -204,8 +216,8 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl border-2 border-[#D5E8DD] shadow-sm space-y-2 text-center">
-              <div className="w-12 h-12 bg-[#FFF8E5] text-[#D9A000] rounded-2xl mx-auto flex items-center justify-center font-bold text-2xl">
+            <div className="bg-white p-6 rounded-3xl border-2 border-[#D5E8DD] shadow-sm space-y-3 text-center hover:scale-105 transition-transform duration-300">
+              <div className="w-12 h-12 bg-[#FFF8E5] text-[#D9A000] rounded-2xl mx-auto flex items-center justify-center font-bold text-2xl animate-bounce">
                 🎵
               </div>
               <h3 className="font-extrabold text-lg text-[#1D3B2E]">Audio & Efek Ceria</h3>
@@ -214,8 +226,8 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl border-2 border-[#D5E8DD] shadow-sm space-y-2 text-center">
-              <div className="w-12 h-12 bg-[#E8F0FE] text-[#1A73E8] rounded-2xl mx-auto flex items-center justify-center font-bold text-2xl">
+            <div className="bg-white p-6 rounded-3xl border-2 border-[#D5E8DD] shadow-sm space-y-3 text-center hover:scale-105 transition-transform duration-300">
+              <div className="w-12 h-12 bg-[#E8F0FE] text-[#1A73E8] rounded-2xl mx-auto flex items-center justify-center font-bold text-2xl animate-pulse">
                 🌱
               </div>
               <h3 className="font-extrabold text-lg text-[#1D3B2E]">Edukasi Bermakna</h3>
@@ -228,8 +240,8 @@ export default function LandingPage() {
       </section>
 
       {/* ---------------- CTA BANNER ---------------- */}
-      <section className="bg-[#38af88] text-white py-16 px-4 text-center">
-        <div className="max-w-3xl mx-auto space-y-6">
+      <section className="bg-[#38af88] text-white py-20 px-4 text-center relative overflow-hidden">
+        <div className="max-w-3xl mx-auto space-y-6 relative z-10">
           <h2 className="text-3xl md:text-5xl font-black">
             Siap Menjadi Pahlawan Bumi Hari Ini?
           </h2>
@@ -238,7 +250,7 @@ export default function LandingPage() {
           </p>
           <button
             onClick={() => triggerTransition("/game")}
-            className="bg-[#F9C846] hover:bg-[#ebd43f] text-[#5C4500] font-black text-xl px-10 py-5 rounded-3xl border-b-4 border-[#C9A02A] active:translate-y-1 active:border-b-0 transition-all shadow-lg inline-flex items-center justify-center gap-3 cursor-pointer"
+            className="bg-[#F9C846] hover:bg-[#ebd43f] text-[#5C4500] font-black text-xl px-10 py-5 rounded-3xl border-b-4 border-[#C9A02A] active:translate-y-1 active:border-b-0 transition-all shadow-xl inline-flex items-center justify-center gap-3 cursor-pointer hover:scale-110"
           >
             <span>Buka Peta Permainan</span>
             <ArrowRight className="w-6 h-6 stroke-[2.5]" />
@@ -256,7 +268,7 @@ export default function LandingPage() {
               href="https://linkedin.com/in/naufalmumtazid"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors text-white"
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all hover:scale-110 text-white"
               aria-label="LinkedIn Profile"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -268,7 +280,7 @@ export default function LandingPage() {
               href="https://instagram.com/naufalmumtazid"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors text-white"
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all hover:scale-110 text-white"
               aria-label="Instagram Profile"
             >
               <svg
@@ -287,7 +299,7 @@ export default function LandingPage() {
               href="https://github.com/naufalmumtazid"
               target="_blank"
               rel="noopener noreferrer"
-              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-colors text-white"
+              className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all hover:scale-110 text-white"
               aria-label="GitHub Profile"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
