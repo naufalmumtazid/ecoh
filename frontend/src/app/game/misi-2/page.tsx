@@ -3,6 +3,7 @@
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Trophy, Sparkles, RefreshCw, Star } from "lucide-react";
+import confetti from "canvas-confetti";
 
 interface DustParticle {
   id: number;
@@ -110,7 +111,43 @@ export default function MisiPembersihanSampah() {
 
   const isCleaned = dustParticles.length === 0;
 
-  const playSound = useCallback((type: "pop" | "correct" | "wrong" | "win") => {
+  // 🎉 TRIGGER CONFETTI CELEBRATION
+  const triggerConfetti = useCallback((type: "small" | "win") => {
+    if (type === "small") {
+      confetti({
+        particleCount: 35,
+        spread: 60,
+        origin: { y: 0.6 },
+        colors: ["#10B981", "#F59E0B", "#3B82F6", "#EC4899"],
+        disableForReducedMotion: true,
+      });
+    } else if (type === "win") {
+      const duration = 2.5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 999 };
+
+      const interval: NodeJS.Timeout = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: Math.random() * 0.3 + 0.1, y: Math.random() - 0.2 },
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: Math.random() * 0.3 + 0.6, y: Math.random() - 0.2 },
+        });
+      }, 250);
+    }
+  }, []);
+
+  // 🎵 AUDIO SYSTEM (CUSTOM correct.mp3 + SYNTHESIZER FALLBACK)
+  const playSynthSound = useCallback((type: "pop" | "wrong" | "win") => {
     try {
       const AudioContext =
         window.AudioContext ||
@@ -129,18 +166,6 @@ export default function MisiPembersihanSampah() {
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
         osc.start();
         osc.stop(ctx.currentTime + 0.05);
-      } else if (type === "correct") {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
-        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
-        gain.gain.setValueAtTime(0.2, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.3);
       } else if (type === "wrong") {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
@@ -172,6 +197,27 @@ export default function MisiPembersihanSampah() {
       // Ignore audio policy
     }
   }, []);
+
+  const playSound = useCallback((type: "pop" | "correct" | "wrong" | "win") => {
+    if (type === "correct") {
+      const audio = new Audio("/correct.mp3");
+      audio.volume = 0.8;
+      audio.play().catch(() => {
+        playSynthSound("pop");
+      });
+      return;
+    }
+    if (type === "win") {
+      const audio = new Audio("/correct.mp3");
+      audio.volume = 0.9;
+      audio.play().catch(() => {
+        playSynthSound("win");
+      });
+      return;
+    }
+
+    playSynthSound(type);
+  }, [playSynthSound]);
 
   const handleDragStart = (tool: "broom" | "sponge" | "water") => {
     setDraggedTool(tool);
@@ -206,6 +252,7 @@ export default function MisiPembersihanSampah() {
       
       if (remaining.length === 0) {
         playSound("correct");
+        triggerConfetti("small");
         setScore((s) => s + 20);
         setFeedback({
           text: `Sempurna! ${currentItem.name} kini bersih mengkilap! ✨ (+20 PTS)`,
@@ -233,6 +280,7 @@ export default function MisiPembersihanSampah() {
     } else {
       setIsCompleted(true);
       playSound("win");
+      triggerConfetti("win");
     }
   };
 

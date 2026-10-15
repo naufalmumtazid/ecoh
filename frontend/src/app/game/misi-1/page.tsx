@@ -3,13 +3,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft, Trophy, Sparkles, Sun, Trees, Star } from "lucide-react";
+import confetti from "canvas-confetti";
 
 interface WasteItem {
   id: string;
   name: string;
   icon: string;
   category: "organik" | "anorganik" | "b3";
-  positionX: number; // 0 sampai 100 (%)
+  positionX: number;
 }
 
 const ALL_WASTE_POOL: Omit<WasteItem, "id" | "positionX">[] = [
@@ -31,12 +32,16 @@ export default function MisiConveyorPilahSampah() {
   const [correctCount, setCorrectCount] = useState<number>(0);
   const [draggedItem, setDraggedItem] = useState<WasteItem | null>(null);
   const [activeBin, setActiveBin] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ text: string; isError: boolean } | null>(null);
+  
+  const [feedback, setFeedback] = useState<{
+    statusEmoji: string;
+    text: string;
+    isError: boolean;
+  } | null>(null);
 
   const TARGET_CORRECT = 10;
   const isGameFinished = correctCount >= TARGET_CORRECT;
 
-  // Refs untuk Game Loop 60 FPS
   const itemsRef = useRef<WasteItem[]>([]);
   const isFinishedRef = useRef<boolean>(isGameFinished);
   const lastSpawnTimeRef = useRef<number>(0);
@@ -46,8 +51,43 @@ export default function MisiConveyorPilahSampah() {
     isFinishedRef.current = isGameFinished;
   }, [isGameFinished]);
 
-  // 🎵 AUDIO SYNTHESIZER
-  const playSound = useCallback((type: "correct" | "wrong" | "win") => {
+  // 🎉 TRIGGER CONFETTI CELEBRATION
+  const triggerConfetti = useCallback((type: "small" | "win") => {
+    if (type === "small") {
+      confetti({
+        particleCount: 35,
+        spread: 60,
+        origin: { y: 0.7 },
+        colors: ["#10B981", "#F59E0B", "#3B82F6", "#EC4899"],
+        disableForReducedMotion: true,
+      });
+    } else if (type === "win") {
+      const duration = 2.5 * 1000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 999 };
+
+      const interval: NodeJS.Timeout = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: Math.random() * 0.3 + 0.1, y: Math.random() - 0.2 },
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: Math.random() * 0.3 + 0.6, y: Math.random() - 0.2 },
+        });
+      }, 250);
+    }
+  }, []);
+
+  // 🎵 1. DEKLARASIKAN playSynthSound TERLEBIH DAHULU DI ATAS
+  const playSynthSound = useCallback((type: "correct" | "wrong" | "win") => {
     try {
       const AudioContext =
         window.AudioContext ||
@@ -95,7 +135,20 @@ export default function MisiConveyorPilahSampah() {
     }
   }, []);
 
-  // Reset Game Logic
+  // 🎵 2. KEMUDIAN BARU playSound
+  const playSound = useCallback((type: "correct" | "wrong" | "win") => {
+    if (type === "correct") {
+      const audio = new Audio("/correct.mp3");
+      audio.volume = 0.8;
+      audio.play().catch(() => {
+        playSynthSound("correct");
+      });
+      return;
+    }
+
+    playSynthSound(type);
+  }, [playSynthSound]);
+
   const initGame = useCallback(() => {
     itemsRef.current = [];
     setItemsOnBelt([]);
@@ -108,8 +161,9 @@ export default function MisiConveyorPilahSampah() {
   useEffect(() => {
     if (isGameFinished) {
       playSound("win");
+      triggerConfetti("win");
     }
-  }, [isGameFinished, playSound]);
+  }, [isGameFinished, playSound, triggerConfetti]);
 
   // 🚀 MAIN GAME LOOP (60 FPS)
   useEffect(() => {
@@ -123,7 +177,6 @@ export default function MisiConveyorPilahSampah() {
       if (!isFinishedRef.current) {
         const now = Date.now();
 
-        // Spawner Sampah Baru
         if (now - lastSpawnTimeRef.current > 2200) {
           const randomWaste =
             ALL_WASTE_POOL[Math.floor(Math.random() * ALL_WASTE_POOL.length)];
@@ -137,7 +190,6 @@ export default function MisiConveyorPilahSampah() {
           lastSpawnTimeRef.current = now;
         }
 
-        // Pergerakan Konveyor
         const speed = 18;
         const updatedItems: WasteItem[] = [];
         let missedCount = 0;
@@ -156,7 +208,8 @@ export default function MisiConveyorPilahSampah() {
 
         if (missedCount > 0) {
           setFeedback({
-            text: `Sampah jatuh dari konveyor! Ayo pilah sampah berikutnya 🍃`,
+            statusEmoji: "⚠️",
+            text: `Sampah jatuh! Ayo ambil berikutnya! 🍃`,
             isError: false,
           });
         }
@@ -174,7 +227,6 @@ export default function MisiConveyorPilahSampah() {
     };
   }, []);
 
-  // Handler Drag & Drop
   const handleDragStart = (item: WasteItem) => {
     setDraggedItem(item);
   };
@@ -199,16 +251,19 @@ export default function MisiConveyorPilahSampah() {
 
     if (draggedItem.category === targetCategory) {
       playSound("correct");
+      triggerConfetti("small");
       setScore((prev) => prev + 10);
       setCorrectCount((prev) => prev + 1);
       setFeedback({
-        text: `Tepat! ${draggedItem.name} masuk ke Tong ${targetCategory.toUpperCase()} ✨ (+10 PTS)`,
+        statusEmoji: "🌟 YES!",
+        text: `Hebat! ${draggedItem.name} tepat! (+10 PTS)`,
         isError: false,
       });
     } else {
       playSound("wrong");
       setFeedback({
-        text: `Salah! ${draggedItem.name} bukan sampah ${targetCategory.toUpperCase()}! 😅`,
+        statusEmoji: "❌ UPS!",
+        text: `Kurang tepat! ${draggedItem.name} bukan di tempat ini 😅`,
         isError: true,
       });
     }
@@ -251,24 +306,26 @@ export default function MisiConveyorPilahSampah() {
           </p>
         </div>
 
-        {/* Feedback Alert */}
+        {/* FEEDBACK STATUS */}
         {feedback && (
           <div
-            className={`p-3.5 rounded-2xl border-4 text-center font-black text-xs md:text-sm shadow-md transition-all animate-bounce ${
+            className={`p-4 rounded-3xl border-4 text-center font-black shadow-lg transition-all animate-bounce flex items-center justify-center gap-3 ${
               feedback.isError
                 ? "bg-[#FFE4E6] border-[#FB7185] text-[#9F1239]"
                 : "bg-[#ECFDF5] border-[#34D399] text-[#065F46]"
             }`}
           >
-            {feedback.text}
+            <span className="text-2xl md:text-3xl px-3 py-1 bg-white rounded-2xl shadow-sm border-2 border-black/10">
+              {feedback.statusEmoji}
+            </span>
+            <span className="text-sm md:text-lg">{feedback.text}</span>
           </div>
         )}
 
-        {/* GAME PLAYFIELD CONTAINER */}
+        {/* GAME PLAYFIELD */}
         {!isGameFinished ? (
           <div className="relative bg-gradient-to-b from-[#BAE6FD] via-[#E0F2FE] to-[#DCFCE7] rounded-3xl p-6 md:p-8 border-4 border-[#38BDF8] shadow-2xl overflow-hidden space-y-6">
             
-            {/* Dekorasi Pemandangan */}
             <div className="absolute top-3 left-6 flex items-center gap-2 opacity-90 pointer-events-none">
               <Sun className="w-9 h-9 text-[#F59E0B] animate-spin-slow" />
             </div>
@@ -282,10 +339,8 @@ export default function MisiConveyorPilahSampah() {
               🌲
             </div>
 
-            {/* AREA TONG SAMPAH (COLORFUL DROP TARGETS) */}
+            {/* BINS */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 relative z-10">
-              
-              {/* TONG ORGANIK (HIJAU MINT) */}
               <div
                 onDragOver={(e) => handleDragOver(e, "organik")}
                 onDragLeave={handleDragLeave}
@@ -301,7 +356,6 @@ export default function MisiConveyorPilahSampah() {
                 <p className="text-[11px] text-[#047857] font-bold">Daun, Pisang, Apel, Sayur</p>
               </div>
 
-              {/* TONG ANORGANIK (KUNING SUNFLOWER) */}
               <div
                 onDragOver={(e) => handleDragOver(e, "anorganik")}
                 onDragLeave={handleDragLeave}
@@ -317,7 +371,6 @@ export default function MisiConveyorPilahSampah() {
                 <p className="text-[11px] text-[#92400E] font-bold">Botol, Kaleng, Kardus</p>
               </div>
 
-              {/* TONG B3 (CORAL / RED) */}
               <div
                 onDragOver={(e) => handleDragOver(e, "b3")}
                 onDragLeave={handleDragLeave}
@@ -332,10 +385,9 @@ export default function MisiConveyorPilahSampah() {
                 <h3 className="font-black text-base text-[#881337]">TONG LIMBAH B3</h3>
                 <p className="text-[11px] text-[#9F1239] font-bold">Baterai, Lampu, Obat</p>
               </div>
-
             </div>
 
-            {/* AREA CONVEYOR BELT BERGERAK */}
+            {/* CONVEYOR */}
             <div className="bg-white/95 backdrop-blur-md p-5 rounded-3xl border-4 border-[#FCD34D] shadow-lg space-y-2 relative z-10">
               <div className="flex items-center justify-between text-xs font-black text-[#78350F]">
                 <span>Progress Benar: {correctCount} / {TARGET_CORRECT}</span>
@@ -345,20 +397,15 @@ export default function MisiConveyorPilahSampah() {
                 </span>
               </div>
 
-              {/* TRACK MESH & ROLLER CONVEYOR */}
               <div className="relative h-28 bg-[#1E293B] rounded-2xl border-4 border-[#475569] overflow-hidden shadow-inner flex items-center">
-                
-                {/* Animasi Garis Konveyor Bergerak */}
                 <div className="absolute inset-0 opacity-30 bg-[linear-gradient(90deg,transparent_50%,#34D399_50%)] bg-[length:40px_100%] animate-conveyor" />
 
-                {/* Roller Roda Mesin */}
                 <div className="absolute bottom-1 left-2 right-2 flex justify-between px-2">
                   <div className="w-5 h-5 rounded-full bg-[#475569] border-2 border-[#94A3B8] animate-spin" />
                   <div className="w-5 h-5 rounded-full bg-[#475569] border-2 border-[#94A3B8] animate-spin" />
                   <div className="w-5 h-5 rounded-full bg-[#475569] border-2 border-[#94A3B8] animate-spin" />
                 </div>
 
-                {/* DYNAMIC ITEM SAMPAH BERGERAK MULUS VIA GPU */}
                 {itemsOnBelt.map((item) => (
                   <div
                     key={item.id}
@@ -376,13 +423,12 @@ export default function MisiConveyorPilahSampah() {
                     </span>
                   </div>
                 ))}
-
               </div>
             </div>
 
           </div>
         ) : (
-          /* WIN / FINISH SCREEN COLORFUL */
+          /* WIN SCREEN */
           <div className="bg-gradient-to-b from-[#ECFDF5] via-[#FFFDF0] to-[#FEF3C7] rounded-3xl p-10 border-4 border-[#10B981] shadow-2xl text-center space-y-6 relative overflow-hidden animate-fade-in">
             <div className="absolute top-4 left-6 animate-bounce text-3xl">⭐</div>
             <div className="absolute top-10 right-8 animate-pulse text-3xl">✨</div>
