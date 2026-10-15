@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Trophy, Sparkles, RefreshCw } from "lucide-react";
+import { ArrowLeft, Trophy, Sparkles, RefreshCw, Star } from "lucide-react";
 
 interface DustParticle {
   id: number;
@@ -81,10 +81,8 @@ const DIRTY_ITEMS_POOL: DirtyItem[] = [
   },
 ];
 
-// Generator posisi acak dengan pola tetap berdasarkan index agar bebas Hydration Mismatch tanpa useEffect
 const generateDustForIndex = (index: number, count: number): DustParticle[] => {
   return Array.from({ length: count }).map((_, idx) => {
-    // Memakai seed pseudo-random sederhana dari index agar konsisten di server & client
     const pseudoRandom1 = Math.sin(index * 99 + idx * 33) * 10000;
     const pseudoRandom2 = Math.cos(index * 55 + idx * 77) * 10000;
     const pseudoRandom3 = Math.sin(index * 11 + idx * 22) * 10000;
@@ -105,7 +103,6 @@ export default function MisiPembersihanSampah() {
 
   const currentItem = DIRTY_ITEMS_POOL[currentIndex];
   
-  // Inisialisasi state langsung via lazy initializer (Bebas useEffect & Bebas Cascading Render)
   const [dustParticles, setDustParticles] = useState<DustParticle[]>(() =>
     generateDustForIndex(0, DIRTY_ITEMS_POOL[0].dustCount)
   );
@@ -113,7 +110,6 @@ export default function MisiPembersihanSampah() {
 
   const isCleaned = dustParticles.length === 0;
 
-  // 🎵 AUDIO SYNTHESIZER
   const playSound = useCallback((type: "pop" | "correct" | "wrong" | "win") => {
     try {
       const AudioContext =
@@ -250,30 +246,34 @@ export default function MisiPembersihanSampah() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F9F5] text-[#2C3E35] font-sans p-4 md:p-8 select-none">
+    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF0] via-[#F4F9F5] to-[#FEF3C7] text-[#1E293B] font-sans p-4 md:p-8 select-none">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Top Header Navigation */}
-        <div className="flex items-center justify-between bg-white p-4 rounded-3xl border-2 border-[#D5E8DD] shadow-sm">
+        <div className="flex items-center justify-between bg-white/90 backdrop-blur-md p-4 rounded-3xl border-4 border-[#FCD34D] shadow-md">
           <Link
             href="/game"
-            className="bg-[#E8F3ED] hover:bg-[#d8eadd] text-[#25785c] font-bold px-4 py-2 rounded-2xl flex items-center gap-2 text-sm transition-all"
+            className="bg-[#FFFDF0] hover:bg-[#FEF3C7] text-[#78350F] font-extrabold px-4 py-2 rounded-2xl border-2 border-[#FCD34D] flex items-center gap-2 text-sm transition-all hover:scale-105 active:scale-95"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 text-[#F59E0B]" />
             <span>Peta Misi</span>
           </Link>
 
-          <div className="bg-[#38af88] text-white font-black px-6 py-2.5 rounded-2xl shadow-sm text-sm">
-            SKOR: {score} / 100 PTS
+          <div className="bg-[#10B981] text-white font-black px-6 py-2.5 rounded-2xl border-b-4 border-[#047857] shadow-md text-sm flex items-center gap-2 animate-scale-float">
+            <Star className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
+            <span>SKOR: {score} / 100 PTS</span>
           </div>
         </div>
 
         {/* Title */}
         <div className="text-center space-y-1">
-          <h1 className="text-2xl md:text-3xl font-black text-[#1D3B2E]">
-            Misi 2: Pembersihan Sampah 
+          <div className="inline-flex items-center gap-2 px-4 py-1 bg-[#FEF3C7] rounded-full text-xs font-black text-[#D97706] border-2 border-[#FCD34D]">
+            <span>LEVEL 2</span>
+          </div>
+          <h1 className="text-2xl md:text-4xl font-black text-[#2D1810]">
+            Misi 2: Pembersihan Sampah 🧹
           </h1>
-          <p className="text-xs md:text-sm text-[#527363]">
+          <p className="text-xs md:text-sm text-[#78350F] font-bold">
             {currentItem.description}
           </p>
         </div>
@@ -281,10 +281,10 @@ export default function MisiPembersihanSampah() {
         {/* Feedback Alert */}
         {feedback && (
           <div
-            className={`p-3 rounded-2xl border-2 text-center font-bold text-xs md:text-sm shadow-sm transition-all ${
+            className={`p-3.5 rounded-2xl border-4 text-center font-black text-xs md:text-sm shadow-md transition-all animate-bounce ${
               feedback.isError
-                ? "bg-rose-50 border-rose-300 text-rose-700"
-                : "bg-emerald-50 border-emerald-300 text-emerald-800"
+                ? "bg-[#FFE4E6] border-[#FB7185] text-[#9F1239]"
+                : "bg-[#ECFDF5] border-[#34D399] text-[#065F46]"
             }`}
           >
             {feedback.text}
@@ -297,19 +297,19 @@ export default function MisiPembersihanSampah() {
             {/* AREA UTAMA PENGGOSOKAN SAMPAH */}
             <div
               onDragOver={handleDragOver}
-              className={`relative bg-gradient-to-b from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A] rounded-3xl p-8 border-4 border-[#FCD34D] shadow-xl text-center space-y-6 overflow-hidden transition-all ${
-                isCleaned ? "from-[#ECFDF5] via-[#D1FAE5] to-[#A7F3D0] border-emerald-400" : ""
+              className={`relative bg-gradient-to-b from-[#FFFBEB] via-[#FEF3C7] to-[#FDE68A] rounded-3xl p-8 border-4 border-[#FBBF24] shadow-2xl text-center space-y-6 overflow-hidden transition-all ${
+                isCleaned ? "from-[#ECFDF5] via-[#D1FAE5] to-[#A7F3D0] border-[#34D399]" : ""
               }`}
             >
-              <div className="flex items-center justify-between text-xs font-bold text-amber-900 bg-white/80 px-4 py-1.5 rounded-full border border-amber-200">
+              <div className="flex items-center justify-between text-xs font-black text-[#78350F] bg-white/90 px-4 py-2 rounded-full border-2 border-[#FCD34D] shadow-xs">
                 <span>Progres: {currentIndex + 1} / {DIRTY_ITEMS_POOL.length} Sampah</span>
                 <span>{isCleaned ? "BERSIH KILAU ✨" : `Tersisa ${dustParticles.length} Debu Cokelat`}</span>
               </div>
 
-              {/* OBJEK SAMPAH DENGAN DEBU COKELAT POLOS */}
-              <div className="relative w-64 h-64 md:w-80 md:h-80 mx-auto bg-white/90 rounded-3xl border-4 border-amber-300 shadow-inner flex items-center justify-center overflow-hidden">
+              {/* OBJEK SAMPAH DENGAN DEBU COKELAT */}
+              <div className="relative w-64 h-64 md:w-80 md:h-80 mx-auto bg-white/95 rounded-3xl border-4 border-[#F59E0B] shadow-inner flex items-center justify-center overflow-hidden">
                 
-                <span className="text-8xl md:text-9xl transition-all duration-300">
+                <span className="text-8xl md:text-9xl transition-all duration-300 drop-shadow-md">
                   {isCleaned ? currentItem.cleanIcon : currentItem.dirtyIcon}
                 </span>
 
@@ -329,7 +329,7 @@ export default function MisiPembersihanSampah() {
                         width: `${dust.sizePx}px`,
                         height: `${dust.sizePx}px`,
                       }}
-                      className="absolute bg-[#78350F] hover:bg-[#92400E] rounded-full border-2 border-[#D97706]/40 shadow-md cursor-pointer transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 active:scale-90 transition-all opacity-85"
+                      className="absolute bg-[#78350F] hover:bg-[#92400E] rounded-full border-2 border-[#D97706]/50 shadow-lg cursor-pointer transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 active:scale-90 transition-all opacity-90"
                     />
                   ))}
               </div>
@@ -338,7 +338,7 @@ export default function MisiPembersihanSampah() {
                 <div className="pt-2 animate-bounce">
                   <button
                     onClick={handleNextItem}
-                    className="bg-[#38af88] hover:bg-[#2d9371] text-white font-extrabold px-8 py-3.5 rounded-2xl border-b-4 border-[#236e54] text-sm shadow-md transition-all inline-flex items-center gap-2"
+                    className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-8 py-3.5 rounded-2xl border-b-4 border-[#047857] text-sm shadow-xl transition-all inline-flex items-center gap-2 cursor-pointer hover:scale-105 animate-scale-float"
                   >
                     <span>Lanjut Sampah Berikutnya ➔</span>
                   </button>
@@ -346,9 +346,9 @@ export default function MisiPembersihanSampah() {
               )}
             </div>
 
-            {/* ALAT PEMBERSIH MELAYANG TANPA BACKGROUND & TEKS */}
+            {/* ALAT PEMBERSIH MELAYANG */}
             <div className="py-4 text-center space-y-2">
-              <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <p className="text-xs font-black text-[#78350F] uppercase tracking-wider bg-[#FEF3C7] inline-block px-4 py-1.5 rounded-full border-2 border-[#FCD34D]">
                 💡 Drag alat di bawah ini lalu usapkan ke debu cokelat:
               </p>
               
@@ -356,8 +356,8 @@ export default function MisiPembersihanSampah() {
                 <div
                   draggable
                   onDragStart={() => handleDragStart(currentItem.requiredTool)}
-                  className={`text-6xl md:text-7xl cursor-grab active:cursor-grabbing hover:scale-125 transition-transform p-2 ${
-                    draggedTool === currentItem.requiredTool ? "scale-125 drop-shadow-lg" : ""
+                  className={`text-6xl md:text-7xl cursor-grab active:cursor-grabbing hover:scale-125 transition-transform p-2 drop-shadow-lg ${
+                    draggedTool === currentItem.requiredTool ? "scale-125 drop-shadow-2xl" : ""
                   }`}
                   title={currentItem.toolName}
                 >
@@ -368,35 +368,35 @@ export default function MisiPembersihanSampah() {
 
           </div>
         ) : (
-          /* WIN SCREEN MISI 2 */
-          <div className="bg-white rounded-3xl p-10 border-4 border-[#38af88] shadow-2xl text-center space-y-6 relative overflow-hidden animate-fade-in">
-            <div className="absolute top-4 left-6 animate-bounce text-2xl">⭐</div>
-            <div className="absolute top-10 right-8 animate-pulse text-2xl">✨</div>
+          /* WIN SCREEN MISI 2 COLORFUL */
+          <div className="bg-gradient-to-b from-[#ECFDF5] via-[#FFFDF0] to-[#FEF3C7] rounded-3xl p-10 border-4 border-[#10B981] shadow-2xl text-center space-y-6 relative overflow-hidden animate-fade-in">
+            <div className="absolute top-4 left-6 animate-bounce text-3xl">⭐</div>
+            <div className="absolute top-10 right-8 animate-pulse text-3xl">✨</div>
 
-            <div className="w-24 h-24 bg-[#E3F5EC] text-[#38af88] rounded-full mx-auto flex items-center justify-center shadow-inner animate-bounce">
-              <Trophy className="w-12 h-12 text-[#F2B705]" />
+            <div className="w-28 h-28 bg-[#FCD34D] text-white rounded-full mx-auto flex items-center justify-center shadow-lg border-4 border-white animate-bounce">
+              <Trophy className="w-14 h-14 text-[#78350F]" />
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-3xl md:text-4xl font-black text-[#1D3B2E]">
+              <h2 className="text-3xl md:text-5xl font-black text-[#2D1810]">
                 Misi 2 Selesai Sempurna! 🎉
               </h2>
-              <p className="text-sm md:text-base text-[#527363] max-w-md mx-auto">
-                Seluruh 5 sampah kotor telah berhasil kamu bersihkan hingga mengkilap! Total skor: <strong className="text-[#38af88]">{score} PTS</strong>.
+              <p className="text-sm md:text-base text-[#78350F] max-w-md mx-auto font-bold">
+                Seluruh 5 sampah kotor telah berhasil kamu bersihkan hingga mengkilap! Total skor: <strong className="text-[#10B981] text-lg">{score} PTS</strong>.
               </p>
             </div>
 
-            <div className="flex justify-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
               <button
                 onClick={handleResetGame}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-6 py-3.5 rounded-2xl text-sm shadow-sm transition-all flex items-center gap-2"
+                className="bg-white hover:bg-[#FFFDF0] text-[#78350F] font-black px-6 py-3.5 rounded-2xl border-4 border-[#FCD34D] text-sm shadow-md transition-all cursor-pointer hover:scale-105 flex items-center justify-center gap-2"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4 text-[#F59E0B]" />
                 <span>Ulangi Misi 2</span>
               </button>
               <Link
                 href="/game"
-                className="bg-[#38af88] hover:bg-[#2d9371] text-white font-extrabold px-8 py-3.5 rounded-2xl border-b-4 border-[#236e54] text-sm shadow-md transition-all flex items-center gap-2"
+                className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-8 py-3.5 rounded-2xl border-b-4 border-[#047857] text-sm shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-105 animate-scale-float"
               >
                 <span>Kembali ke Peta Misi</span>
                 <Sparkles className="w-4 h-4" />

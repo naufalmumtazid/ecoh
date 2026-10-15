@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Trophy, Sparkles, Sun, Trees } from "lucide-react";
+import { ArrowLeft, Trophy, Sparkles, Sun, Trees, Star } from "lucide-react";
 
 interface WasteItem {
   id: string;
@@ -28,7 +28,7 @@ const ALL_WASTE_POOL: Omit<WasteItem, "id" | "positionX">[] = [
 export default function MisiConveyorPilahSampah() {
   const [itemsOnBelt, setItemsOnBelt] = useState<WasteItem[]>([]);
   const [score, setScore] = useState<number>(0);
-  const [correctCount, setCorrectCount] = useState<number>(0); // Hanya bertambah saat BENAR
+  const [correctCount, setCorrectCount] = useState<number>(0);
   const [draggedItem, setDraggedItem] = useState<WasteItem | null>(null);
   const [activeBin, setActiveBin] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ text: string; isError: boolean } | null>(null);
@@ -123,7 +123,7 @@ export default function MisiConveyorPilahSampah() {
       if (!isFinishedRef.current) {
         const now = Date.now();
 
-        // Spawner Sampah Baru secara kontinu
+        // Spawner Sampah Baru
         if (now - lastSpawnTimeRef.current > 2200) {
           const randomWaste =
             ALL_WASTE_POOL[Math.floor(Math.random() * ALL_WASTE_POOL.length)];
@@ -145,7 +145,6 @@ export default function MisiConveyorPilahSampah() {
         for (const item of itemsRef.current) {
           const nextX = item.positionX + speed * deltaTime;
           if (nextX > 102) {
-            // Sampah jatuh/luput -> HILANG, TAPI PROGRESS TIDAK BERHAMBOH
             missedCount += 1;
           } else {
             updatedItems.push({ ...item, positionX: nextX });
@@ -201,7 +200,7 @@ export default function MisiConveyorPilahSampah() {
     if (draggedItem.category === targetCategory) {
       playSound("correct");
       setScore((prev) => prev + 10);
-      setCorrectCount((prev) => prev + 1); // 🎯 PROGRESS HANYA NAMBAH DI SINI!
+      setCorrectCount((prev) => prev + 1);
       setFeedback({
         text: `Tepat! ${draggedItem.name} masuk ke Tong ${targetCategory.toUpperCase()} ✨ (+10 PTS)`,
         isError: false,
@@ -214,146 +213,149 @@ export default function MisiConveyorPilahSampah() {
       });
     }
 
-    // Hapus sampah terproses dari ref array
     itemsRef.current = itemsRef.current.filter((i) => i.id !== draggedItem.id);
     setItemsOnBelt([...itemsRef.current]);
     setDraggedItem(null);
   };
 
   return (
-    <div className="min-h-screen bg-[#F4F9F5] text-[#2C3E35] font-sans p-4 md:p-8 select-none">
+    <div className="min-h-screen bg-gradient-to-b from-[#FFFDF0] via-[#F4F9F5] to-[#FEF3C7] text-[#1E293B] font-sans p-4 md:p-8 select-none">
       <div className="max-w-5xl mx-auto space-y-6">
         
         {/* Top Header Navigation */}
-        <div className="flex items-center justify-between bg-white p-4 rounded-3xl border-2 border-[#D5E8DD] shadow-sm">
+        <div className="flex items-center justify-between bg-white/90 backdrop-blur-md p-4 rounded-3xl border-4 border-[#FCD34D] shadow-md">
           <Link
             href="/game"
-            className="bg-[#E8F3ED] hover:bg-[#d8eadd] text-[#25785c] font-bold px-4 py-2 rounded-2xl flex items-center gap-2 text-sm transition-all"
+            className="bg-[#FFFDF0] hover:bg-[#FEF3C7] text-[#78350F] font-extrabold px-4 py-2 rounded-2xl border-2 border-[#FCD34D] flex items-center gap-2 text-sm transition-all hover:scale-105 active:scale-95"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 text-[#F59E0B]" />
             <span>Peta Misi</span>
           </Link>
 
-          <div className="bg-[#38af88] text-white font-black px-6 py-2.5 rounded-2xl shadow-sm text-sm">
-            SKOR: {score} / 100 PTS
+          <div className="bg-[#10B981] text-white font-black px-6 py-2.5 rounded-2xl border-b-4 border-[#047857] shadow-md text-sm flex items-center gap-2 animate-scale-float">
+            <Star className="w-4 h-4 fill-[#F59E0B] text-[#F59E0B]" />
+            <span>SKOR: {score} / 100 PTS</span>
           </div>
         </div>
 
         {/* Title Header */}
         <div className="text-center space-y-1">
-          <h1 className="text-2xl md:text-3xl font-black text-[#1D3B2E]">
-            Misi 1: Pemilahan Sampah 
+          <div className="inline-flex items-center gap-2 px-4 py-1 bg-[#ECFDF5] rounded-full text-xs font-black text-[#059669] border-2 border-[#A7F3D0]">
+            <span>LEVEL 1</span>
+          </div>
+          <h1 className="text-2xl md:text-4xl font-black text-[#2D1810]">
+            Misi 1: Pemilahan Sampah ⚙️
           </h1>
-          <p className="text-xs md:text-sm text-[#527363]">
-            Pilah 10 sampah dengan tepat untuk memenangkan misi!
+          <p className="text-xs md:text-sm text-[#78350F] font-bold">
+            Pilah 10 sampah dengan tepat untuk memenangkan misi ini!
           </p>
         </div>
 
         {/* Feedback Alert */}
         {feedback && (
           <div
-            className={`p-3 rounded-2xl border-2 text-center font-bold text-xs md:text-sm shadow-sm transition-all ${
+            className={`p-3.5 rounded-2xl border-4 text-center font-black text-xs md:text-sm shadow-md transition-all animate-bounce ${
               feedback.isError
-                ? "bg-rose-50 border-rose-300 text-rose-700"
-                : "bg-emerald-50 border-emerald-300 text-emerald-800"
+                ? "bg-[#FFE4E6] border-[#FB7185] text-[#9F1239]"
+                : "bg-[#ECFDF5] border-[#34D399] text-[#065F46]"
             }`}
           >
             {feedback.text}
           </div>
         )}
 
-        {/* GAME PLAYFIELD CONTAINER (BOXED PEMANDANGAN DESA RINDANG) */}
+        {/* GAME PLAYFIELD CONTAINER */}
         {!isGameFinished ? (
-          <div className="relative bg-gradient-to-b from-[#BAE6FD] via-[#E0F2FE] to-[#DCFCE7] rounded-3xl p-6 md:p-8 border-4 border-[#7DD3FC] shadow-xl overflow-hidden space-y-6">
+          <div className="relative bg-gradient-to-b from-[#BAE6FD] via-[#E0F2FE] to-[#DCFCE7] rounded-3xl p-6 md:p-8 border-4 border-[#38BDF8] shadow-2xl overflow-hidden space-y-6">
             
-            {/* Dekorasi Pemandangan di dalam Box */}
-            <div className="absolute top-3 left-6 flex items-center gap-2 opacity-80 pointer-events-none">
-              <Sun className="w-8 h-8 text-amber-400 animate-spin-slow" />
+            {/* Dekorasi Pemandangan */}
+            <div className="absolute top-3 left-6 flex items-center gap-2 opacity-90 pointer-events-none">
+              <Sun className="w-9 h-9 text-[#F59E0B] animate-spin-slow" />
             </div>
-            <div className="absolute top-4 right-8 text-3xl opacity-60 pointer-events-none">
+            <div className="absolute top-4 right-8 text-3xl opacity-80 pointer-events-none">
               ☁️
             </div>
-            <div className="absolute -bottom-10 -left-10 text-7xl opacity-20 pointer-events-none">
+            <div className="absolute -bottom-8 -left-8 text-7xl opacity-30 pointer-events-none">
               🌳
             </div>
-            <div className="absolute -bottom-10 -right-10 text-7xl opacity-20 pointer-events-none">
+            <div className="absolute -bottom-8 -right-8 text-7xl opacity-30 pointer-events-none">
               🌲
             </div>
 
-            {/* AREA TONG SAMPAH (DROP TARGETS) */}
+            {/* AREA TONG SAMPAH (COLORFUL DROP TARGETS) */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 relative z-10">
               
-              {/* TONG ORGANIK */}
+              {/* TONG ORGANIK (HIJAU MINT) */}
               <div
                 onDragOver={(e) => handleDragOver(e, "organik")}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, "organik")}
-                className={`bg-white/90 backdrop-blur-sm rounded-3xl p-4 border-4 transition-all text-center flex flex-col items-center justify-center space-y-1 min-h-[150px] shadow-sm ${
+                className={`bg-gradient-to-b from-[#ECFDF5] to-[#D1FAE5] rounded-3xl p-4 border-4 transition-all text-center flex flex-col items-center justify-center space-y-1 min-h-[150px] shadow-md ${
                   activeBin === "organik"
-                    ? "border-emerald-500 bg-emerald-100/90 scale-105 shadow-lg"
-                    : "border-emerald-400 border-dashed"
+                    ? "border-[#10B981] bg-[#A7F3D0] scale-105 shadow-2xl"
+                    : "border-[#34D399]"
                 }`}
               >
-                <span className="text-4xl">🍃</span>
-                <h3 className="font-black text-sm text-emerald-900">TONG ORGANIK</h3>
-                <p className="text-[10px] text-emerald-700 font-medium">Drop Sampah Alami</p>
+                <span className="text-5xl drop-shadow-xs">🍃</span>
+                <h3 className="font-black text-base text-[#065F46]">TONG ORGANIK</h3>
+                <p className="text-[11px] text-[#047857] font-bold">Daun, Pisang, Apel, Sayur</p>
               </div>
 
-              {/* TONG ANORGANIK */}
+              {/* TONG ANORGANIK (KUNING SUNFLOWER) */}
               <div
                 onDragOver={(e) => handleDragOver(e, "anorganik")}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, "anorganik")}
-                className={`bg-white/90 backdrop-blur-sm rounded-3xl p-4 border-4 transition-all text-center flex flex-col items-center justify-center space-y-1 min-h-[150px] shadow-sm ${
+                className={`bg-gradient-to-b from-[#FEF3C7] to-[#FDE68A] rounded-3xl p-4 border-4 transition-all text-center flex flex-col items-center justify-center space-y-1 min-h-[150px] shadow-md ${
                   activeBin === "anorganik"
-                    ? "border-amber-500 bg-amber-100/90 scale-105 shadow-lg"
-                    : "border-amber-400 border-dashed"
+                    ? "border-[#F59E0B] bg-[#FCD34D] scale-105 shadow-2xl"
+                    : "border-[#FBBF24]"
                 }`}
               >
-                <span className="text-4xl">♻️</span>
-                <h3 className="font-black text-sm text-amber-900">TONG ANORGANIK</h3>
-                <p className="text-[10px] text-amber-700 font-medium">Drop Plastik / Kardus</p>
+                <span className="text-5xl drop-shadow-xs">♻️</span>
+                <h3 className="font-black text-base text-[#78350F]">TONG ANORGANIK</h3>
+                <p className="text-[11px] text-[#92400E] font-bold">Botol, Kaleng, Kardus</p>
               </div>
 
-              {/* TONG B3 */}
+              {/* TONG B3 (CORAL / RED) */}
               <div
                 onDragOver={(e) => handleDragOver(e, "b3")}
                 onDragLeave={handleDragLeave}
                 onDrop={(e) => handleDrop(e, "b3")}
-                className={`bg-white/90 backdrop-blur-sm rounded-3xl p-4 border-4 transition-all text-center flex flex-col items-center justify-center space-y-1 min-h-[150px] shadow-sm ${
+                className={`bg-gradient-to-b from-[#FFE4E6] to-[#FECDD3] rounded-3xl p-4 border-4 transition-all text-center flex flex-col items-center justify-center space-y-1 min-h-[150px] shadow-md ${
                   activeBin === "b3"
-                    ? "border-rose-500 bg-rose-100/90 scale-105 shadow-lg"
-                    : "border-rose-400 border-dashed"
+                    ? "border-[#E11D48] bg-[#FDA4AF] scale-105 shadow-2xl"
+                    : "border-[#FB7185]"
                 }`}
               >
-                <span className="text-4xl">⚠️</span>
-                <h3 className="font-black text-sm text-rose-900">TONG LIMBAH B3</h3>
-                <p className="text-[10px] text-rose-700 font-medium">Drop Baterai / Lampu</p>
+                <span className="text-5xl drop-shadow-xs">⚠️</span>
+                <h3 className="font-black text-base text-[#881337]">TONG LIMBAH B3</h3>
+                <p className="text-[11px] text-[#9F1239] font-bold">Baterai, Lampu, Obat</p>
               </div>
 
             </div>
 
             {/* AREA CONVEYOR BELT BERGERAK */}
-            <div className="bg-white/90 backdrop-blur-sm p-5 rounded-3xl border-2 border-emerald-200 shadow-md space-y-2 relative z-10">
-              <div className="flex items-center justify-between text-xs font-bold text-gray-600">
-                <span>Sampah Benar: {correctCount} / {TARGET_CORRECT}</span>
-                <span className="text-[#38af88] flex items-center gap-1">
-                  <Trees className="w-3.5 h-3.5" />
-                  <span>Seret Sampah ke Tong yang Pas</span>
+            <div className="bg-white/95 backdrop-blur-md p-5 rounded-3xl border-4 border-[#FCD34D] shadow-lg space-y-2 relative z-10">
+              <div className="flex items-center justify-between text-xs font-black text-[#78350F]">
+                <span>Progress Benar: {correctCount} / {TARGET_CORRECT}</span>
+                <span className="text-[#10B981] flex items-center gap-1 font-extrabold">
+                  <Trees className="w-4 h-4" />
+                  <span>Seret Sampah ke Tong yang Cocok!</span>
                 </span>
               </div>
 
               {/* TRACK MESH & ROLLER CONVEYOR */}
-              <div className="relative h-28 bg-gray-800 rounded-2xl border-4 border-gray-600 overflow-hidden shadow-inner flex items-center">
+              <div className="relative h-28 bg-[#1E293B] rounded-2xl border-4 border-[#475569] overflow-hidden shadow-inner flex items-center">
                 
                 {/* Animasi Garis Konveyor Bergerak */}
-                <div className="absolute inset-0 opacity-25 bg-[linear-gradient(90deg,transparent_50%,#ffffff_50%)] bg-[length:40px_100%] animate-conveyor" />
+                <div className="absolute inset-0 opacity-30 bg-[linear-gradient(90deg,transparent_50%,#34D399_50%)] bg-[length:40px_100%] animate-conveyor" />
 
                 {/* Roller Roda Mesin */}
                 <div className="absolute bottom-1 left-2 right-2 flex justify-between px-2">
-                  <div className="w-5 h-5 rounded-full bg-gray-600 border-2 border-gray-400 animate-spin" />
-                  <div className="w-5 h-5 rounded-full bg-gray-600 border-2 border-gray-400 animate-spin" />
-                  <div className="w-5 h-5 rounded-full bg-gray-600 border-2 border-gray-400 animate-spin" />
+                  <div className="w-5 h-5 rounded-full bg-[#475569] border-2 border-[#94A3B8] animate-spin" />
+                  <div className="w-5 h-5 rounded-full bg-[#475569] border-2 border-[#94A3B8] animate-spin" />
+                  <div className="w-5 h-5 rounded-full bg-[#475569] border-2 border-[#94A3B8] animate-spin" />
                 </div>
 
                 {/* DYNAMIC ITEM SAMPAH BERGERAK MULUS VIA GPU */}
@@ -366,10 +368,10 @@ export default function MisiConveyorPilahSampah() {
                       transform: `translate3d(${item.positionX * 8.5}px, 0, 0)`,
                       willChange: "transform",
                     }}
-                    className="absolute top-2 left-0 p-2 bg-white rounded-2xl border-2 border-[#38af88] shadow-md flex flex-col items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 z-20 transition-transform"
+                    className="absolute top-2 left-0 p-2.5 bg-white rounded-2xl border-4 border-[#F59E0B] shadow-lg flex flex-col items-center justify-center cursor-grab active:cursor-grabbing hover:scale-110 z-20 transition-transform active:scale-95"
                   >
-                    <span className="text-2xl">{item.icon}</span>
-                    <span className="text-[9px] font-black text-[#1D3B2E] whitespace-nowrap">
+                    <span className="text-3xl">{item.icon}</span>
+                    <span className="text-[10px] font-black text-[#2D1810] whitespace-nowrap mt-0.5">
                       {item.name}
                     </span>
                   </div>
@@ -380,34 +382,34 @@ export default function MisiConveyorPilahSampah() {
 
           </div>
         ) : (
-          /* WIN / FINISH SCREEN */
-          <div className="bg-white rounded-3xl p-10 border-4 border-[#38af88] shadow-2xl text-center space-y-6 relative overflow-hidden animate-fade-in">
-            <div className="absolute top-4 left-6 animate-bounce text-2xl">⭐</div>
-            <div className="absolute top-10 right-8 animate-pulse text-2xl">✨</div>
+          /* WIN / FINISH SCREEN COLORFUL */
+          <div className="bg-gradient-to-b from-[#ECFDF5] via-[#FFFDF0] to-[#FEF3C7] rounded-3xl p-10 border-4 border-[#10B981] shadow-2xl text-center space-y-6 relative overflow-hidden animate-fade-in">
+            <div className="absolute top-4 left-6 animate-bounce text-3xl">⭐</div>
+            <div className="absolute top-10 right-8 animate-pulse text-3xl">✨</div>
 
-            <div className="w-24 h-24 bg-[#E3F5EC] text-[#38af88] rounded-full mx-auto flex items-center justify-center shadow-inner animate-bounce">
-              <Trophy className="w-12 h-12 text-[#F2B705]" />
+            <div className="w-28 h-28 bg-[#FCD34D] text-white rounded-full mx-auto flex items-center justify-center shadow-lg border-4 border-white animate-bounce">
+              <Trophy className="w-14 h-14 text-[#78350F]" />
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-3xl md:text-4xl font-black text-[#1D3B2E]">
+              <h2 className="text-3xl md:text-5xl font-black text-[#2D1810]">
                 Hore! Misi 1 Selesai Sempurna! 🎉
               </h2>
-              <p className="text-sm md:text-base text-[#527363] max-w-md mx-auto">
-                Kamu berhasil memilah 10 sampah dengan tepat dan meraih skor <strong className="text-[#38af88]">{score} PTS</strong>!
+              <p className="text-sm md:text-base text-[#78350F] max-w-md mx-auto font-bold">
+                Kamu berhasil memilah 10 sampah dengan tepat dan meraih skor <strong className="text-[#10B981] text-lg">{score} PTS</strong>!
               </p>
             </div>
 
-            <div className="flex justify-center gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
               <button
                 onClick={initGame}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-6 py-3.5 rounded-2xl text-sm shadow-sm transition-all"
+                className="bg-white hover:bg-[#FFFDF0] text-[#78350F] font-black px-6 py-3.5 rounded-2xl border-4 border-[#FCD34D] text-sm shadow-md transition-all cursor-pointer hover:scale-105"
               >
-                Main Lagi
+                Main Lagi 🔄
               </button>
               <Link
                 href="/game/misi-2"
-                className="bg-[#38af88] hover:bg-[#2d9371] text-white font-extrabold px-8 py-3.5 rounded-2xl border-b-4 border-[#236e54] text-sm shadow-md transition-all flex items-center gap-2"
+                className="bg-[#10B981] hover:bg-[#059669] text-white font-black px-8 py-3.5 rounded-2xl border-b-4 border-[#047857] text-sm shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer hover:scale-105 animate-scale-float"
               >
                 <span>Lanjut Misi 2 (Pembersihan)</span>
                 <Sparkles className="w-4 h-4" />
